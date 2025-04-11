@@ -30,7 +30,7 @@ player_x = 450
 player_y = 663
 direction = 0
 blinky_x = 56
-blinky_y = 58
+blinky_y = 50
 blinky_direction = 0
 inky_x = 440
 inky_y = 388
@@ -61,7 +61,7 @@ inky_box = False
 clyde_box = False
 pinky_box = False
 moving = False
-ghost_speeds = [1.9, 1.9, 1.9, 1.9]
+ghost_speeds = [2, 2, 2, 2]
 startup_counter = 0
 lives = 3
 game_over = False
@@ -338,8 +338,8 @@ class Ghost:
         current_x_grid = self.center_x // num2
         current_y_grid = self.center_y // num1
 
-        player_center_x = player_x + 24
-        player_center_y = player_y + 26
+        player_center_x = player_x + 22
+        player_center_y = player_y + 24
         target_x_grid = player_center_x // num2
         target_y_grid = player_center_y // num1
 
@@ -420,21 +420,36 @@ class Ghost:
         return self.x_pos, self.y_pos, self.direction
 
     def move_inky(self):
+        # Helper function to calculate Manhattan distance
+        def get_distance(dx, dy):
+            return abs((self.x_pos + dx) - self.target[0]) + abs((self.y_pos + dy) - self.target[1])
+
         # r, l, u, d
         # inky turns up or down at any point to pursue, but left and right only on collision
         if self.direction == 0:
             if self.target[0] > self.x_pos and self.turns[0]:
                 self.x_pos += self.speed
             elif not self.turns[0]:
-                if self.target[1] > self.y_pos and self.turns[3]:
-                    self.direction = 3
-                    self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
-                    self.direction = 2
-                    self.y_pos -= self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
-                    self.direction = 1
-                    self.x_pos -= self.speed
+                # Evaluate possible directions using Manhattan distance
+                options = []
+                if self.turns[3]:  # Down
+                    options.append((get_distance(0, self.speed), 3))
+                if self.turns[2]:  # Up
+                    options.append((get_distance(0, -self.speed), 2))
+                if self.turns[1]:  # Left
+                    options.append((get_distance(-self.speed, 0), 1))
+                
+                if options:
+                    # Sort by smallest distance first
+                    options.sort()
+                    best_dir = options[0][1]
+                    self.direction = best_dir
+                    if best_dir == 3:
+                        self.y_pos += self.speed
+                    elif best_dir == 2:
+                        self.y_pos -= self.speed
+                    elif best_dir == 1:
+                        self.x_pos -= self.speed
                 elif self.turns[3]:
                     self.direction = 3
                     self.y_pos += self.speed
@@ -445,29 +460,44 @@ class Ghost:
                     self.direction = 1
                     self.x_pos -= self.speed
             elif self.turns[0]:
-                if self.target[1] > self.y_pos and self.turns[3]:
-                    self.direction = 3
-                    self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.turns[2]:
-                    self.direction = 2
-                    self.y_pos -= self.speed
+                options = []
+                if self.turns[3]:  # Down
+                    options.append((get_distance(0, self.speed), 3))
+                if self.turns[2]:  # Up
+                    options.append((get_distance(0, -self.speed), 2))
+                
+                if options:
+                    options.sort()
+                    best_dir = options[0][1]
+                    self.direction = best_dir
+                    self.y_pos += self.speed if best_dir == 3 else -self.speed
                 else:
                     self.x_pos += self.speed
+
         elif self.direction == 1:
             if self.target[1] > self.y_pos and self.turns[3]:
                 self.direction = 3
             elif self.target[0] < self.x_pos and self.turns[1]:
                 self.x_pos -= self.speed
             elif not self.turns[1]:
-                if self.target[1] > self.y_pos and self.turns[3]:
-                    self.direction = 3
-                    self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
-                    self.direction = 2
-                    self.y_pos -= self.speed
-                elif self.target[0] > self.x_pos and self.turns[0]:
-                    self.direction = 0
-                    self.x_pos += self.speed
+                options = []
+                if self.turns[3]:  # Down
+                    options.append((get_distance(0, self.speed), 3))
+                if self.turns[2]:  # Up
+                    options.append((get_distance(0, -self.speed), 2))
+                if self.turns[0]:  # Right
+                    options.append((get_distance(self.speed, 0), 0))
+                
+                if options:
+                    options.sort()
+                    best_dir = options[0][1]
+                    self.direction = best_dir
+                    if best_dir == 3:
+                        self.y_pos += self.speed
+                    elif best_dir == 2:
+                        self.y_pos -= self.speed
+                    elif best_dir == 0:
+                        self.x_pos += self.speed
                 elif self.turns[3]:
                     self.direction = 3
                     self.y_pos += self.speed
@@ -478,28 +508,43 @@ class Ghost:
                     self.direction = 0
                     self.x_pos += self.speed
             elif self.turns[1]:
-                if self.target[1] > self.y_pos and self.turns[3]:
-                    self.direction = 3
-                    self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.turns[2]:
-                    self.direction = 2
-                    self.y_pos -= self.speed
+                options = []
+                if self.turns[3]:  # Down
+                    options.append((get_distance(0, self.speed), 3))
+                if self.turns[2]:  # Up
+                    options.append((get_distance(0, -self.speed), 2))
+                
+                if options:
+                    options.sort()
+                    best_dir = options[0][1]
+                    self.direction = best_dir
+                    self.y_pos += self.speed if best_dir == 3 else -self.speed
                 else:
                     self.x_pos -= self.speed
+
         elif self.direction == 2:
             if self.target[1] < self.y_pos and self.turns[2]:
                 self.direction = 2
                 self.y_pos -= self.speed
             elif not self.turns[2]:
-                if self.target[0] > self.x_pos and self.turns[0]:
-                    self.direction = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
-                    self.direction = 1
-                    self.x_pos -= self.speed
-                elif self.target[1] > self.y_pos and self.turns[3]:
-                    self.direction = 3
-                    self.y_pos += self.speed
+                options = []
+                if self.turns[0]:  # Right
+                    options.append((get_distance(self.speed, 0), 0))
+                if self.turns[1]:  # Left
+                    options.append((get_distance(-self.speed, 0), 1))
+                if self.turns[3]:  # Down
+                    options.append((get_distance(0, self.speed), 3))
+                
+                if options:
+                    options.sort()
+                    best_dir = options[0][1]
+                    self.direction = best_dir
+                    if best_dir == 0:
+                        self.x_pos += self.speed
+                    elif best_dir == 1:
+                        self.x_pos -= self.speed
+                    elif best_dir == 3:
+                        self.y_pos += self.speed
                 elif self.turns[1]:
                     self.direction = 1
                     self.x_pos -= self.speed
@@ -511,19 +556,29 @@ class Ghost:
                     self.x_pos += self.speed
             elif self.turns[2]:
                 self.y_pos -= self.speed
+
         elif self.direction == 3:
             if self.target[1] > self.y_pos and self.turns[3]:
                 self.y_pos += self.speed
             elif not self.turns[3]:
-                if self.target[0] > self.x_pos and self.turns[0]:
-                    self.direction = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
-                    self.direction = 1
-                    self.x_pos -= self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
-                    self.direction = 2
-                    self.y_pos -= self.speed
+                options = []
+                if self.turns[0]:  # Right
+                    options.append((get_distance(self.speed, 0), 0))
+                if self.turns[1]:  # Left
+                    options.append((get_distance(-self.speed, 0), 1))
+                if self.turns[2]:  # Up
+                    options.append((get_distance(0, -self.speed), 2))
+                
+                if options:
+                    options.sort()
+                    best_dir = options[0][1]
+                    self.direction = best_dir
+                    if best_dir == 0:
+                        self.x_pos += self.speed
+                    elif best_dir == 1:
+                        self.x_pos -= self.speed
+                    elif best_dir == 2:
+                        self.y_pos -= self.speed
                 elif self.turns[2]:
                     self.direction = 2
                     self.y_pos -= self.speed
@@ -535,11 +590,14 @@ class Ghost:
                     self.x_pos += self.speed
             elif self.turns[3]:
                 self.y_pos += self.speed
+
+
         if self.x_pos < -30:
             self.x_pos = 900
         elif self.x_pos > 900:
-            self.x_pos - 30
-        return self.x_pos, self.y_pos, self.direction
+            self.x_pos = -30
+
+        return self.x_pos, self.y_pos, self.direction    
 
     def move_pinky(self):
         num1 = ((HEIGHT - 50) // 32)
@@ -1191,4 +1249,3 @@ while run:
 pygame.quit()
 
 
-# sound effects, restart and winning messages
