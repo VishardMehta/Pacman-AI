@@ -21,3 +21,6 @@ Each ghost brings a different level of difficulty and unpredictability.
 2. Install dependencies:
    ```bash
    pip install pygame
+3.	Run the game:
+   python3 pacman.py
+  	
