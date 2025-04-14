@@ -22,5 +22,6 @@ Each ghost brings a different level of difficulty and unpredictability.
    ```bash
    pip install pygame
 3.	Run the game:
+	```bash
    python3 pacman.py
   	
