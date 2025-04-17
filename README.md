@@ -11,7 +11,7 @@ Features smart ghost behaviors with different pathfinding strategies for each gh
 ## Ghost Behaviors
 - **Blinky (Red)**: Uses **BFS (Breadth-First Search)** – quick and consistent  
 - **Pinky (Pink)**: Uses **A\*** with **HeapQ** – precise and efficient  
-- **Inky (Blue)**: Uses **Simple Hill Climbing** – fast but can get stuck  
+- **Inky (Blue)**: Uses **Simple/Steepest Hill Climbing** – fast but can get stuck  
 - **Clyde (Orange)**: Reactive movement – changes path when close to Pac-Man  
 
 Each ghost brings a different level of difficulty and unpredictability.
