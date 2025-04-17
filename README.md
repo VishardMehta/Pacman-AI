@@ -22,7 +22,7 @@ Each ghost brings a different level of difficulty and unpredictability.
 2. Install dependencies:  
    ```bash
    pip install pygame
-   ```markdown
+   
 3. Run the game:  
    ```bash
    python3 pacman.py
